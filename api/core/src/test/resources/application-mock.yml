@@ -1,0 +1,3 @@
+jwt:
+  public_key: classpath:ownpage.rsa.pub.pem.pkcs8
+  private_key: classpath:ownpage.rsa

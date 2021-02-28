@@ -1,0 +1,44 @@
+OwnPage
+=======
+
+OwnPage is an open-source blogging engine that puts data ownership first.
+
+.Table of contents
+* <<state,State of the project>>
+* <<auth-model,The Authentication and Authorization Model>>
+** <<guest-access,Guest access>>
+* <<licence,Licence>>
+
+[[state]]
+State of this project
+---------------------
+
+_This project is very much early stage and *not ready for production adoption*._
+
+The main focus of the implementation so far has been around validating the idea of a blogging engine that promotes data ownership.
+The authentication and authorization model implemented by this project uses OAuth2 to facilitate this.
+
+[[auth-model]]
+The Authentication and Authorization Model
+------------------------------------------
+The key aspect of OwnPage is that any owner of an OwnPage blog can log in to another OwnPage blog and perform activity such as reading posts and leaving comments. Any data-generating activity like leaving a comment will happen as follows:
+
+. the content of the comment will be stored in the OwnPage server of the author of the comment
+. a reference to the comment will be stored in the OwnPage server of the author of the post to which the comment is made
+. all the comments left to a post will be shown as long as they are accessible from the servers they are stored in
+. each comment will present indication of the author of the comment
+
+image::assets/OwnPage_comment.png[OwnPage comment sequence diagram]
+
+[[guest-access]]
+Guest access
+~~~~~~~~~~~~
+By default, any user can log into an OwnPage blog as guest provided they have their own OwnPage server.
+OwnPage leverages the https://tools.ietf.org/html/rfc6749#page-8[OAuth2 Authorization Code flow] to allow any OwnPage owner
+to log in as guest on any other OwnPage. This facilitates ownership of the data that we produce when we interact with other OwnPage owners.
+
+[[licence]]
+Licence
+-------
+
+This project is released under the AGPL 3.0 licence.

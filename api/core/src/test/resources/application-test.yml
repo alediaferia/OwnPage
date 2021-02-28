@@ -1,0 +1,10 @@
+spring:
+  jpa.hibernate.ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:6432/owndb_test
+    username: ownuser
+    password: ownpassword
+
+jwt:
+  public_key: classpath:ownpage.rsa.pub.pem.pkcs8
+  private_key: classpath:ownpage.rsa

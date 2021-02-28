@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  owndb:
+    image: postgres:12
+    volumes:
+      - owndb-data:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_PASSWORD=ownpassword
+      - POSTGRES_USER=ownuser
+      - POSTGRES_DB=owndb
+    ports:
+      - "6432:5432"
+  ownproxy:
+    image: nginx:alpine
+    volumes:
+      - ${PWD}/api/files/nginx/ownpage.conf:/etc/nginx/conf.d/ownpage.conf
+    ports:
+      - "8066:8066"
+
+  otherdb:
+    image: postgres:12
+    volumes:
+      - otherdb-data:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_PASSWORD=otherpassword
+      - POSTGRES_USER=otheruser
+      - POSTGRES_DB=otherdb
+    ports:
+      - "6433:5432"
+  otherproxy:
+    image: nginx:alpine
+    volumes:
+      - ${PWD}/api/files/nginx/otherpage.conf:/etc/nginx/conf.d/otherpage.conf
+    ports:
+      - "8067:8067"
+
+volumes:
+  owndb-data:
+  otherdb-data:

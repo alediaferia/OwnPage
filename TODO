@@ -1,0 +1,6 @@
+- Support "unfetchable" comments
+- Testing infrastructure
+- Separate login from guest login
+- Allow theming
+- Add support for all things blog post editing
+

@@ -1,0 +1,7 @@
+server:
+  port: 8456
+  servlet:
+    context-path: /api
+
+ownapp:
+  baseUrl: http://localhost:8456
