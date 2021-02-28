@@ -1,3 +1,6 @@
+:toc:
+:toc-placement!:
+
 OwnPage
 =======
 
@@ -5,16 +8,8 @@ image::https://img.shields.io/twitter/follow/alediaferia?style=social[@alediafer
 
 OwnPage is an open-source blogging engine that puts data ownership first.
 
-.Table of contents
-* <<state,State of the project>>
-* <<auth-model,The Authentication and Authorization Model>>
-** <<guest-access,Guest access>>
-* <<development,Development>>
-** <<development_project-structure,Project Structure>>
-*** <<development_project-structure_api,The API Project>>
-* <<licence,Licence>>
+toc::[]
 
-[[state]]
 State of this project
 ---------------------
 
@@ -23,7 +18,6 @@ _This project is very much at its earliest stage of development and *not ready f
 The main focus of the implementation so far has been around validating the idea of a blogging engine that promotes data ownership.
 The authentication and authorization model implemented by this project uses OAuth2 to facilitate this.
 
-[[auth-model]]
 The Authentication and Authorization Model
 ------------------------------------------
 The key aspect of OwnPage is that any owner of an OwnPage blog can log in to another OwnPage blog and perform activity such as reading posts and leaving comments. Any data-generating activity like leaving a comment will happen as follows:
@@ -35,21 +29,18 @@ The key aspect of OwnPage is that any owner of an OwnPage blog can log in to ano
 
 image::assets/OwnPage_comment.png[OwnPage comment sequence diagram]
 
-[[guest-access]]
 Guest access
 ~~~~~~~~~~~~
 By default, any user can log into an OwnPage blog as guest provided they have their own OwnPage server.
 OwnPage leverages the https://tools.ietf.org/html/rfc6749#page-8[OAuth2 Authorization Code flow] to allow any OwnPage owner
 to log in as guest on any other OwnPage. This facilitates ownership of the data that we produce when we interact with other OwnPage owners.
 
-[[development]]
 Development
 -----------
 
 This project is at its earliest stage of development. In this section you can find an overview of the project structure
 and information on how to run it and contribute to it.
 
-[[development_project-structure]]
 Project Structure
 ~~~~~~~~~~~~~~~~~
 
@@ -58,7 +49,6 @@ OwnPage is composed by an API backend and a Front-End https://reactjs.org/[React
 This is a https://en.wikipedia.org/wiki/Monorepo[monorepo] that includes both the UI and API projects.
 
 [source,bash]
----
 .
 ├── LICENCE
 ├── README.asciidoc
@@ -68,15 +58,98 @@ This is a https://en.wikipedia.org/wiki/Monorepo[monorepo] that includes both th
 ├── docker-compose.dev.yml
 ├── scripts
 └── ui
----
 
-[[development_project-structure_api]]
 The API Project
 ^^^^^^^^^^^^^^^
 
+All the relevant code is available under the `api/` folder.
+
 The API is a https://kotlinlang.org/[Kotlin] https://spring.io/projects/spring-boot[Spring Boot] application that uses https://gradle.org/[Gradle] as build tool.
 
-[[licence]]
+The UI Project
+^^^^^^^^^^^^^^
+
+All the relevant code is available under the `ui/` folder.
+
+The UI is a https://create-react-app.dev[Create React App] application enhanced by https://material-ui.com[Material UI].
+
+Running Locally
+~~~~~~~~~~~~~~~
+
+While developing this project it is often useful running two instances of it at the same time. This guide assumes this use case.
+For convenience, we will prefix the first instance with `own` (e.g. _ownpage_, _owndb_, _ownui_, _ownproxy_) and the second one with `other`
+(e.g. _otherpage_, _otherdb_, _otherui_, _otherproxy_).
+
+Docker
+^^^^^^
+
+The first set of dependencies can be spun up using Docker Compose as follows:
+
+[source,bash]
+$ docker-compoose -f docker-compose.dev.yml up -d
+
+Please refer to the https://docs.docker.com/compose/[Docker Compose] documentation for more information.
+
+The `docker-compose.dev.yml` files defines, for each instance:
+
+* a Postgres database instance
+* an NGINX proxy
+
+The API instances
+^^^^^^^^^^^^^^^^^
+
+This project assumes IntelliJ IDEA as IDE for the API. The `api/.idea` folder of this repository includes 2 Run Configurations
+the work with the database and proxy spun up through Docker Compose.
+
+image::assets/OwnPage_RunConfigurations.png[OwnPage IntelliJ Run Configurations]
+
+The 2 run configurations are configured as follows.
+
+[options="header"]
+|=================
+|                  | OwnPage | OtherPage
+| Server Port      | `8456`  | `8457`
+| DB Port          | `6432`  | `6433`
+| DB Name          | `owndb` | `otherdb`
+| `ownapp.baseUrl` | http://ownpage.local:8066[`http://ownpage.local:8066`] | http://otherpage.local:8067[`http://otherpage.local:8067`] 
+|=================
+
+Add the following line to your `/etc/hosts`
+
+[source]
+127.0.0.1 otherpage.local ownpage.local
+
+The UI Instances
+^^^^^^^^^^^^^^^^
+
+Set up the UI project as follows
+
+[source,bash]
+$ cd ui
+$ npm install
+
+The proxy servers configured in the `docker-compose.dev.yml` file expect ports `3000` and `3001` to be used by the front-end apps.
+
+[source,bash]
+$ npm start # defaults to 3000
+$ PORT=3001 npm start
+
+First access setup
+^^^^^^^^^^^^^^^^^^
+
+An `admin` account is expected to be configured on each instance before any interaction can happen. An _owner setup password_ is configured
+in each api application to be able to invoke the relevant API to create the admin account. The default owner is configured 
+link:api/core/src/main/resources/application.yml[here] under the `owner.setup-password` property.
+
+[source]
+this-is-a-complex-setup-password!
+
+You can use the link:scripts/setup.sh[`setup.sh`] script to register an admin account as follows:
+
+[source,bash]
+$ OWNER_SETUPPASSWORD="this-is-a-complex-setup-password\!" ADMIN_PASSWORD="an-admin-pass-of-your-choice" PORT=8456 ./scripts/setup.sh
+$ OWNER_SETUPPASSWORD="this-is-a-complex-setup-password\!" ADMIN_PASSWORD="an-admin-pass-of-your-choice" PORT=8457 ./scripts/setup.sh # otherpage
+
 Licence
 -------
 
