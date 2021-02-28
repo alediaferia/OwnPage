@@ -1,19 +1,24 @@
 OwnPage
 =======
 
+image::https://img.shields.io/twitter/follow/alediaferia?style=social[@alediaferia Twitter badge]
+
 OwnPage is an open-source blogging engine that puts data ownership first.
 
 .Table of contents
 * <<state,State of the project>>
 * <<auth-model,The Authentication and Authorization Model>>
 ** <<guest-access,Guest access>>
+* <<development,Development>>
+** <<development_project-structure,Project Structure>>
+*** <<development_project-structure_api,The API Project>>
 * <<licence,Licence>>
 
 [[state]]
 State of this project
 ---------------------
 
-_This project is very much early stage and *not ready for production adoption*._
+_This project is very much at its earliest stage of development and *not ready for production adoption*._
 
 The main focus of the implementation so far has been around validating the idea of a blogging engine that promotes data ownership.
 The authentication and authorization model implemented by this project uses OAuth2 to facilitate this.
@@ -36,6 +41,40 @@ Guest access
 By default, any user can log into an OwnPage blog as guest provided they have their own OwnPage server.
 OwnPage leverages the https://tools.ietf.org/html/rfc6749#page-8[OAuth2 Authorization Code flow] to allow any OwnPage owner
 to log in as guest on any other OwnPage. This facilitates ownership of the data that we produce when we interact with other OwnPage owners.
+
+[[development]]
+Development
+-----------
+
+This project is at its earliest stage of development. In this section you can find an overview of the project structure
+and information on how to run it and contribute to it.
+
+[[development_project-structure]]
+Project Structure
+~~~~~~~~~~~~~~~~~
+
+OwnPage is composed by an API backend and a Front-End https://reactjs.org/[React] UI.
+
+This is a https://en.wikipedia.org/wiki/Monorepo[monorepo] that includes both the UI and API projects.
+
+[source,bash]
+---
+.
+├── LICENCE
+├── README.asciidoc
+├── TODO
+├── api
+├── assets
+├── docker-compose.dev.yml
+├── scripts
+└── ui
+---
+
+[[development_project-structure_api]]
+The API Project
+^^^^^^^^^^^^^^^
+
+The API is a https://kotlinlang.org/[Kotlin] https://spring.io/projects/spring-boot[Spring Boot] application that uses https://gradle.org/[Gradle] as build tool.
 
 [[licence]]
 Licence
