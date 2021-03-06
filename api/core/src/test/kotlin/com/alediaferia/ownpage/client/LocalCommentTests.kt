@@ -53,14 +53,11 @@ class LocalCommentTests : AbstractTCIntegrationTest() {
         text = "This is another test comment",
     )
 
-    lateinit var user: UserModel
     lateinit var oauth2RestTemplate: OAuth2RestTemplate
-
-    lateinit var post: PostModel
 
     @BeforeAll
     fun initializeAuthentication() {
-        user = getTestUser()
+        val user = testUser
 
         val loginData = LinkedMultiValueMap<String, String>(mapOf(
             "username" to listOf(user.name),
@@ -95,14 +92,15 @@ class LocalCommentTests : AbstractTCIntegrationTest() {
 
         accessTokenRequest.set(OAuth2Utils.USER_OAUTH_APPROVAL, "true")
 
-        post = oauth2RestTemplate.postForObject(urlFor("/posts"),
-            PostModel(title = "Dummy title", content = "awesome  content"),
-            PostModel::class.java) ?: throw RuntimeException("Unable to create post")
+        testProfile
     }
-
 
     @Test
     fun testCreateComment() {
+        val post = oauth2RestTemplate.postForObject(urlFor("/posts"),
+            PostModel(title = "Dummy title", content = "awesome  content"),
+            PostModel::class.java) ?: throw RuntimeException("Unable to create post")
+
         val result = oauth2RestTemplate.postForObject(urlFor("/posts/${post.id}/comments"), dummyComment1, CommentModel::class.java)
         assertEquals(dummyComment1.text, result?.text)
     }

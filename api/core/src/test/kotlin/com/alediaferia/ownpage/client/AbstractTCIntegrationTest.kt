@@ -18,9 +18,12 @@
 
 package com.alediaferia.ownpage.client
 
+import com.alediaferia.ownpage.models.ProfileModel
 import com.alediaferia.ownpage.models.UserModel
 import com.alediaferia.ownpage.utils.random
+import com.github.javafaker.Faker
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -45,9 +48,16 @@ const val SETUP_PASSWORD = "integration-tests-password"
 )
 @Testcontainers
 abstract class AbstractTCIntegrationTest {
-    @LocalServerPort protected var localServerPort: Int = 0
-    @Autowired protected lateinit var restTemplate: TestRestTemplate
-    @Value("\${server.servlet.context-path}") protected lateinit var servletContextPath: String
+    @LocalServerPort
+    protected var localServerPort: Int = 0
+
+    @Autowired
+    protected lateinit var restTemplate: TestRestTemplate
+
+    @Value("\${server.servlet.context-path}")
+    protected lateinit var servletContextPath: String
+
+    protected val faker = Faker()
 
     companion object {
         @Container
@@ -71,7 +81,7 @@ abstract class AbstractTCIntegrationTest {
     protected fun urlFor(uri: kotlin.String): URI =
         URI("http://localhost:$localServerPort$servletContextPath$uri")
 
-    protected fun getTestUser(): UserModel {
+    protected val testUser: UserModel by lazy {
         val testUser = UserModel(
             String.random(),
             String.random()
@@ -81,11 +91,27 @@ abstract class AbstractTCIntegrationTest {
             .withBasicAuth("owner", SETUP_PASSWORD)
             .postForEntity(urlFor("/users/admin"), testUser, UserModel::class.java)
 
-        Assertions.assertEquals(HttpStatus.OK, userModelResponse.statusCode)
-        return UserModel(
+        assertEquals(HttpStatus.OK, userModelResponse.statusCode)
+        UserModel(
             userModelResponse.body!!.name,
             testUser.password,
             userModelResponse.body!!.id
         )
+    }
+
+    protected val testProfile: ProfileModel by lazy {
+        val sampleProfile = ProfileModel(
+            faker.name().firstName(),
+            faker.name().lastName(),
+            faker.name().username(),
+            faker.lorem().paragraph()
+        )
+
+        val result = restTemplate
+            .withBasicAuth(testUser.name, testUser.password)
+            .postForEntity(urlFor("/profile/register"), sampleProfile, ProfileModel::class.java)
+        assertEquals(HttpStatus.OK, result.statusCode)
+
+        result.body!!
     }
 }
