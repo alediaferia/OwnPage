@@ -7,12 +7,6 @@ spring:
 
 ownapp:
   baseUrl: http://ownpage.local:8066
-  oauth2:
-    client_id: change-me-client-id
-    guest_client_id: guest-client-id
+
 owner:
   setup-password: this-is-a-complex-setup-password!
-
-jwt:
-  public_key: classpath:ownpage.rsa.pub.pem.pkcs8
-  private_key: classpath:ownpage.rsa

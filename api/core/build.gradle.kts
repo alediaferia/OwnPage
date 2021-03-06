@@ -1,3 +1,6 @@
+import Dependencies.Versions.springBootVersion
+import Dependencies.Versions.testContainersVersion
+
 plugins {
 	kotlin("jvm")
 	kotlin("plugin.jpa") version kotlinVersion
@@ -26,7 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
-	implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${Dependencies.Versions.springBootVersion}")
+	implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:$springBootVersion")
 	implementation("org.springframework.security:spring-security-oauth2-resource-server")
 	implementation("org.springframework.security:spring-security-oauth2-client")
 	implementation("org.springframework.security:spring-security-oauth2-jose") // JWT support
@@ -46,6 +49,9 @@ dependencies {
 	testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
 	testRuntimeOnly("com.h2database:h2")
+	testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+	testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
+	testImplementation("org.testcontainers:postgresql:$testContainersVersion")
 }
 
 tasks.withType<Test> {

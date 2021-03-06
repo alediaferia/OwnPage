@@ -20,21 +20,30 @@ package com.alediaferia.ownpage.client
 
 import com.alediaferia.ownpage.models.CommentModel
 import com.alediaferia.ownpage.models.PostModel
-import com.alediaferia.ownpage.models.PostRefModel
 import com.alediaferia.ownpage.models.UserModel
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
+import org.springframework.boot.test.web.client.postForEntity
+import org.springframework.boot.test.web.client.postForObject
+import org.springframework.http.MediaType
+import org.springframework.http.RequestEntity
+import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
+import org.springframework.security.oauth2.client.resource.UserApprovalRequiredException
+import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException
 import org.springframework.security.oauth2.client.token.DefaultAccessTokenRequest
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeAccessTokenProvider
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails
-import java.lang.RuntimeException
+import org.springframework.security.oauth2.common.util.OAuth2Utils
+import org.springframework.util.LinkedMultiValueMap
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class LocalCommentTests : AbstractClientTests() {
+class LocalCommentTests : AbstractTCIntegrationTest() {
 
     val dummyComment1 = CommentModel(
         text = "This is a test comment",
@@ -53,16 +62,38 @@ class LocalCommentTests : AbstractClientTests() {
     fun initializeAuthentication() {
         user = getTestUser()
 
-        val resourceOwnerDetails = ResourceOwnerPasswordResourceDetails().apply {
-            username = user.name
-            password = user.password
-            scope = listOf("own")
-            clientId = "dummy-id"
-            clientSecret = "dummy-secret"
+        val loginData = LinkedMultiValueMap<String, String>(mapOf(
+            "username" to listOf(user.name),
+            "password" to listOf(user.password)
+        ))
+        val loginRequest = RequestEntity.post(urlFor("/perform_login"))
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(loginData)
+        val loginResponse: ResponseEntity<String> = restTemplate.postForEntity(loginRequest.url, loginRequest)
+
+        val resourceOwnerDetails = AuthorizationCodeResourceDetails().apply {
+            clientId = "change-me-client-id"
+            clientSecret = ""
+            scope = listOf("profile_manager")
             accessTokenUri = urlFor("/oauth/token").toString()
+            userAuthorizationUri = urlFor("/oauth/authorize").toString()
         }
 
-        oauth2RestTemplate = OAuth2RestTemplate(resourceOwnerDetails, DefaultOAuth2ClientContext(DefaultAccessTokenRequest()))
+        val accessTokenRequest = DefaultAccessTokenRequest().apply {
+            cookie = loginResponse.headers.getFirst("Set-Cookie")
+            set("redirect_uri", "http://localhost:8456/authenticated")
+        }
+
+        oauth2RestTemplate = OAuth2RestTemplate(resourceOwnerDetails, DefaultOAuth2ClientContext(accessTokenRequest))
+        oauth2RestTemplate.setAccessTokenProvider(AuthorizationCodeAccessTokenProvider())
+
+        val userRedirectException = assertThrows<UserRedirectRequiredException> {
+            oauth2RestTemplate.accessToken
+        }
+
+        oauth2RestTemplate.oAuth2ClientContext.accessToken = oauth2RestTemplate.accessToken
+
+        accessTokenRequest.set(OAuth2Utils.USER_OAUTH_APPROVAL, "true")
 
         post = oauth2RestTemplate.postForObject(urlFor("/posts"),
             PostModel(title = "Dummy title", content = "awesome  content"),

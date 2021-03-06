@@ -41,6 +41,11 @@ Development
 This project is at its earliest stage of development. In this section you can find an overview of the project structure
 and information on how to run it and contribute to it.
 
+Requirements
+~~~~~~~~~~~~
+
+This project requires Docker for its development.
+
 Project Structure
 ~~~~~~~~~~~~~~~~~
 

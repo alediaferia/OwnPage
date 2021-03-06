@@ -21,5 +21,6 @@ const val kotlinVersion = "1.4.30"
 object Dependencies {
     object Versions {
         const val springBootVersion = "2.2.6.RELEASE"
+        const val testContainersVersion = "1.15.2"
     }
 }
