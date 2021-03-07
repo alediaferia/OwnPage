@@ -20,10 +20,15 @@ package com.alediaferia.ownpage.client
 
 import com.alediaferia.ownpage.OwnpageApplication
 import com.alediaferia.ownpage.SETUP_PASSWORD
+import com.alediaferia.ownpage.models.UserModel
+import com.alediaferia.ownpage.utils.random
+import junit.framework.Assert.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.http.HttpStatus
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -56,6 +61,7 @@ class DualInstancesIntegrationTest {
         fun setup() {
             ownPageApp = SpringApplicationBuilder(OwnpageApplication::class.java)
                 .properties(
+                    "spring.jpa.hibernate.ddl-auto=update",
                     "spring.datasource.url=jdbc:postgresql://localhost:${ownPgContainer.firstMappedPort}/owntestdb",
                     "spring.datasource.username=owntestuser",
                     "spring.datasource.password=ownpassword",
@@ -64,6 +70,7 @@ class DualInstancesIntegrationTest {
 
             otherPageApp = SpringApplicationBuilder(OwnpageApplication::class.java)
                 .properties(
+                    "spring.jpa.hibernate.ddl-auto=update",
                     "spring.datasource.url=jdbc:postgresql://localhost:${otherPgContainer.firstMappedPort}/othertestdb",
                     "spring.datasource.username=othertestuser",
                     "spring.datasource.password=otherpassword",
@@ -73,8 +80,19 @@ class DualInstancesIntegrationTest {
         }
     }
 
+
     @Test
     fun test() {
-        assert(true)
+        val testUser = UserModel(
+            String.random(),
+            String.random()
+        )
+
+        val restTemplate = RestTemplateBuilder()
+            .basicAuthentication("owner", SETUP_PASSWORD)
+            .build()
+
+        val r = restTemplate.postForEntity("http://localhost:8890/api/users/admin", testUser, UserModel::class.java)
+        assertEquals(HttpStatus.OK, r.statusCode)
     }
 }
