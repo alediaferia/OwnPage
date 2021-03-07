@@ -19,13 +19,11 @@
 package com.alediaferia.ownpage.client
 
 import com.alediaferia.ownpage.OwnpageApplication
+import com.alediaferia.ownpage.SETUP_PASSWORD
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -58,19 +56,20 @@ class DualInstancesIntegrationTest {
         fun setup() {
             ownPageApp = SpringApplicationBuilder(OwnpageApplication::class.java)
                 .properties(
-                    "server.port=8890",
                     "spring.datasource.url=jdbc:postgresql://localhost:${ownPgContainer.firstMappedPort}/owntestdb",
                     "spring.datasource.username=owntestuser",
-                    "spring.datasource.password=ownpassword"
-                ).run()
+                    "spring.datasource.password=ownpassword",
+                    "owner.setup-password=$SETUP_PASSWORD"
+                ).run("--server.port=8890")
 
             otherPageApp = SpringApplicationBuilder(OwnpageApplication::class.java)
                 .properties(
-                    "server.port=8891",
                     "spring.datasource.url=jdbc:postgresql://localhost:${otherPgContainer.firstMappedPort}/othertestdb",
                     "spring.datasource.username=othertestuser",
-                    "spring.datasource.password=otherpassword"
-                ).run()
+                    "spring.datasource.password=otherpassword",
+                    "owner.setup-password=$SETUP_PASSWORD"
+                )
+                .run("--server.port=8891")
         }
     }
 

@@ -18,6 +18,7 @@
 
 package com.alediaferia.ownpage.client
 
+import com.alediaferia.ownpage.SETUP_PASSWORD
 import com.alediaferia.ownpage.models.ProfileModel
 import com.alediaferia.ownpage.models.UserModel
 import com.alediaferia.ownpage.utils.random
@@ -35,8 +36,6 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.net.URI
-
-const val SETUP_PASSWORD = "integration-tests-password"
 
 // https://medium.com/javarevisited/integration-tests-with-spring-boot-testcontainers-liquibase-and-junit-5-13fb1ae70b40
 @ActiveProfiles("test")
