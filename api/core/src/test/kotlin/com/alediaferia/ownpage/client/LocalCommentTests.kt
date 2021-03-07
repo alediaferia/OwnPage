@@ -21,11 +21,8 @@ package com.alediaferia.ownpage.client
 import com.alediaferia.ownpage.models.CommentModel
 import com.alediaferia.ownpage.models.PostModel
 import com.alediaferia.ownpage.models.UserModel
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.boot.test.web.client.postForObject
 import org.springframework.http.MediaType
@@ -42,7 +39,6 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 import org.springframework.security.oauth2.common.util.OAuth2Utils
 import org.springframework.util.LinkedMultiValueMap
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LocalCommentTests : AbstractTCIntegrationTest() {
 
     val dummyComment1 = CommentModel(
@@ -55,7 +51,7 @@ class LocalCommentTests : AbstractTCIntegrationTest() {
 
     lateinit var oauth2RestTemplate: OAuth2RestTemplate
 
-    @BeforeAll
+    @BeforeEach
     fun initializeAuthentication() {
         val user = testUser
 

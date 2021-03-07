@@ -65,13 +65,14 @@ abstract class AbstractTCIntegrationTest {
             withDatabaseName("owntestdb")
             withUsername("owntestuser")
             withPassword("ownpassword")
-            withExposedPorts(5439)
+            withExposedPorts(5432)
         }
 
         @DynamicPropertySource
+        @JvmStatic
         fun registerPgProperty(registry: DynamicPropertyRegistry) {
             registry.add("spring.datasource.url") {
-                String.format("jdbc:postgresql://localhost:%d/prop", pgContainer.firstMappedPort)
+                String.format("jdbc:postgresql://localhost:%d/owntestdb", pgContainer.firstMappedPort)
             }
             registry.add("spring.datasource.username") { "owntestuser" }
             registry.add("spring.datasource.password") { "ownpassword" }
